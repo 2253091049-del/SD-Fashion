@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SD Fashion Billing</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+
+    :root {
+      --ink: #1a1b1f;
+      --muted: #6b7280;
+      --brand: #0f3460;
+      --brand-strong: #0a2540;
+      --accent: #e94560;
+      --surface: #ffffff;
+      --stroke: #e7e9ee;
+      --soft: #f7f8fb;
+      --good: #2d7a3a;
+      --bad: #c62828;
+      --info: #1565c0;
+      --warn: #e65100;
+    }
+
+    body[data-theme="dark"] {
+      --ink: #e5e7eb;
+      --muted: #9ca3af;
+      --brand: #7aa2ff;
+      --brand-strong: #9ab6ff;
+      --accent: #ff7b9a;
+      --surface: #1f2937; /* Card/modal background */
+      --stroke: #374151; /* Borders */
+      --soft: #111827;   /* Main content area background */
+      --good: #34d399;
+      --bad: #f87171;
+      --info: #60a5fa;
+      --warn: #f59e0b;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Outfit', 'Trebuchet MS', sans-serif;
+      background: var(--soft);
+      color: var(--ink);
+      transition: background 0.3s, color 0.3s;
+    }
+    body[data-theme="light"] {
+      background: #f4f6fb;
+    }
+    body[data-theme="dark"] {
+      background: var(--soft);
+    }
+
+    /* ── Login ── */
+    #login-screen {
+      display: flex; align-items: center; justify-content: center;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    }
+    .login-box {
+      background: white; border-radius: 16px; padding: 40px 48px;
+      width: 380px; box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    }
+    .login-box h1 { text-align: center; color: #0f3460; margin-bottom: 8px; font-size: 24px; }
+    .login-box p  { text-align: center; color: #888; margin-bottom: 28px; font-size: 13px; }
+    .form-group { margin-bottom: 18px; }
+    .form-group label { display: block; margin-bottom: 6px; font-size: 13px; font-weight: 600; color: #555; }
+    .form-group input {
+      width: 100%; padding: 10px 14px; border: 2px solid #e0e0e0;
+      border-radius: 8px; font-size: 14px; transition: border 0.2s;
+    }
+    .form-group input:focus { outline: none; border-color: #0f3460; }
+    .btn-primary {
+      width: 100%; padding: 12px; background: #0f3460; color: white;
+      border: none; border-radius: 8px; font-size: 15px; font-weight: 600;
+      cursor: pointer; transition: background 0.2s;
+    }
+    .btn-primary:hover { background: #16213e; }
+    .error-msg { color: #e53e3e; font-size: 13px; margin-top: 10px; text-align: center; }
+
+    /* ── App Layout ── */
+    #app-screen { display: none; height: 100vh; flex-direction: row; }
+
+    /* Sidebar */
+    .sidebar {
+      width: 230px; background: linear-gradient(180deg, #0b1625 0%, #0b1220 100%);
+      color: #e2e8f0;
+      display: flex; flex-direction: column; flex-shrink: 0;
+      border-right: 1px solid rgba(255,255,255,0.06);
+    }
+    .sidebar-logo {
+      padding: 22px 20px; border-bottom: 1px solid rgba(255,255,255,0.08);
+      font-size: 18px; font-weight: 700; display: flex; align-items: center; gap: 10px;
+    }
+    .logo-badge {
+      width: 32px; height: 32px; border-radius: 10px;
+      display: grid; place-items: center;
+      background: #4fd1c5; /* Teal color from image */
+      color: #1a202c; /* Dark color for icon */
+    }
+    .logo-badge svg { width: 20px; height: 20px; }
+    .sidebar-logo span { color: #e5e7eb; }
+    .sidebar-menu { flex: 1; padding: 12px 0; }
+    .menu-item {
+      padding: 11px 18px; margin: 6px 12px; cursor: pointer; display: flex; align-items: center;
+      gap: 12px; font-size: 14px; transition: background 0.2s, color 0.2s; border-radius: 10px;
+      color: #94a3b8; /* Muted color for inactive items */
+    }
+    .menu-item:hover { background: rgba(255,255,255,0.08); color: #e5e7eb; }
+    .menu-item.active { background: #2563eb; color: #f8fafc; }
+    .menu-item .icon {
+      width: 20px;
+      height: 20px;
+      display: grid;
+      place-items: center;
+    }
+    .menu-item .icon svg {
+      width: 18px;
+      height: 18px;
+      stroke-width: 1.5;
+    }
+    .menu-item.active .icon { color: white; }
+
+    .sidebar-footer { padding: 16px; border-top: 1px solid rgba(255,255,255,0.1); }
+    .sidebar-footer .menu-item { margin: 0 0 10px; } /* For theme toggle */
+    .user-info {
+      font-size: 14px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #e5e7eb;
+      padding: 8px 12px;
+    }
+    .user-avatar {
+      width: 32px; height: 32px; border-radius: 999px; display: grid; place-items: center;
+      background: #4fd1c5; color: #1a202c; font-weight: 600; font-size: 14px;
+    }
+    .user-avatar svg {
+      width: 20px; height: 20px;
+    }
+    .btn-logout {
+      width: 100%; padding: 12px; background: #d9534f; color: white;
+      border: none; border-radius: 10px; cursor: pointer; font-size: 14px; font-weight: 600;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: background 0.2s;
+    }
+    .btn-logout:hover { background: #c9302c; }
+    .btn-logout svg { width: 18px; height: 18px; }
+
+    /* Main Content */
+    .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+    .topbar {
+      background: var(--surface);
+      padding: 18px 26px; border-bottom: 1px solid var(--stroke);
+      display: flex; align-items: center; justify-content: space-between;
+      transition: background 0.3s, border-color 0.3s;
+    }
+    .topbar h2 { font-size: 20px; color: var(--ink); }
+    .content-area { flex: 1; overflow-y: auto; padding: 24px 26px 32px; }
+
+    /* Pages */
+    .page { display: none; }
+    .page.active { display: block; }
+
+    /* Cards */
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+    .stat-card {
+      background: var(--surface); border-radius: 16px; padding: 18px 20px;
+      box-shadow: 0 8px 22px rgba(16,24,40,0.08);
+      border: 1px solid var(--stroke);
+      transition: background 0.3s, border-color 0.3s;
+    }
+    .stat-head { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+    .stat-icon {
+      width: 36px; height: 36px; border-radius: 12px; display: grid; place-items: center;
+      font-size: 16px; background: #e8f5ff; color: #2563eb; font-weight: 700;
+    }
+    body[data-theme="dark"] .stat-icon {
+      background: rgba(59, 130, 246, 0.2);
+      color: #93c5fd;
+    }
+    .stat-card .label { font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+    .stat-card .value { font-size: 24px; font-weight: 700; color: var(--ink); }
+    .stat-card .sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+    /* Table */
+    .table-card {
+      background: var(--surface); border-radius: 16px; padding: 18px 20px;
+      box-shadow: 0 8px 22px rgba(16,24,40,0.06); margin-bottom: 20px;
+      border: 1px solid var(--stroke);
+      transition: background 0.3s, border-color 0.3s;
+    }
+    .table-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 16px;
+    }
+    .table-header h3 { font-size: 16px; color: var(--ink); }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th {
+      background: var(--soft); padding: 12px; text-align: left;
+      font-weight: 600; color: var(--muted); border-bottom: 1px solid var(--stroke);
+      transition: background 0.3s, border-color 0.3s, color 0.3s;
+    }
+    td { padding: 12px; border-bottom: 1px solid var(--stroke); transition: border-color 0.3s; }
+    tr:hover td { background: var(--soft); }
+    .badge {
+      display: inline-block; padding: 2px 10px; border-radius: 20px;
+      font-size: 12px; font-weight: 600;
+    }
+    .badge-green { background: #e6f4ea; color: #2d7a3a; }
+    .badge-red { background: #fdecea; color: #c62828; }
+    .badge-blue { background: #e3f0ff; color: #1565c0; }
+
+    /* Buttons */
+    .btn { padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; }
+    .btn-sm { padding: 5px 12px; font-size: 12px; }
+    .btn-success { background: #2d7a3a; color: white; }
+    .btn-danger { background: #c62828; color: white; }
+    .btn-info { background: #2563eb; color: white; }
+    .btn-warning { background: #e65100; color: white; }
+    .btn:hover { opacity: 0.85; }
+
+    /* Modal */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.5); z-index: 1000;
+      align-items: center; justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: white; border-radius: 14px; padding: 28px;
+      width: 500px; max-width: 95vw; max-height: 90vh; overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    .modal h3 { margin-bottom: 20px; color: #0f3460; font-size: 18px; }
+    .modal .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .modal .form-group { margin-bottom: 14px; }
+    .modal input, .modal select, .modal textarea {
+      width: 100%; padding: 9px 12px; border: 2px solid #e0e0e0;
+      border-radius: 7px; font-size: 14px;
+    }
+    .modal input:focus, .modal select:focus { outline: none; border-color: #0f3460; }
+    .modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+
+    /* Bill workspace */
+    .bill-grid {
+      display: grid; grid-template-columns: 1.3fr 0.9fr; gap: 20px; align-items: start;
+    }
+    .bill-card, .receipt-card {
+      background: var(--surface); border-radius: 18px; padding: 22px;
+      box-shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
+      border: 1px solid var(--stroke);
+      transition: background 0.3s, border-color 0.3s, color 0.3s;
+    }
+    .bill-header {
+      display: flex; justify-content: space-between; gap: 16px;
+      border-bottom: 1px dashed var(--stroke); padding-bottom: 16px; margin-bottom: 16px;
+    }
+    .brand-title { font-size: 22px; font-weight: 700; color: var(--brand-strong); letter-spacing: 0.2px; }
+    .brand-sub { font-size: 13px; color: var(--muted); margin-top: 2px; }
+    .brand-meta { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .bill-meta { display: grid; gap: 10px; min-width: 180px; }
+    .meta-row label { font-size: 11px; color: var(--muted); display: block; margin-bottom: 4px; }
+    .meta-row input {
+      width: 100%; padding: 6px 10px; border: 1px solid var(--stroke);
+      border-radius: 8px; background: var(--soft); font-size: 13px; color: var(--ink);
+      transition: background 0.3s, border-color 0.3s, color 0.3s;
+    }
+    .bill-customer {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-bottom: 18px;
+    }
+    .bill-customer select, .bill-customer input {
+      width: 100%; padding: 9px 12px; border: 1px solid var(--stroke); border-radius: 7px; font-size: 14px;
+      background: var(--soft); color: var(--ink);
+      transition: background 0.3s, border-color 0.3s, color 0.3s;
+    }
+    .sale-items-head {
+      display: grid; grid-template-columns: 2fr 90px 80px 120px 120px 36px;
+      gap: 10px; font-size: 12px; color: var(--muted); margin-bottom: 8px;
+    }
+    .sale-item-row {
+      display: grid; grid-template-columns: 2fr 90px 80px 120px 120px 36px;
+      gap: 10px; align-items: center; margin-bottom: 10px;
+    }
+    .sale-item-row select, .sale-item-row input {
+      padding: 8px 10px; border: 1px solid var(--stroke); border-radius: 6px; font-size: 14px;
+      background: var(--soft); color: var(--ink);
+      transition: background 0.3s, border-color 0.3s, color 0.3s;
+    }
+    .sale-item-row .line-total { font-weight: 600; font-size: 13px; color: var(--brand-strong); }
+    .sale-summary {
+      border-top: 2px solid var(--stroke); padding-top: 16px; margin-top: 10px;
+    }
+    .summary-row {
+      display: flex; justify-content: space-between; padding: 5px 0;
+      font-size: 14px;
+    }
+    .summary-row.total { font-weight: 700; font-size: 18px; color: var(--brand); }
+    .summary-row.due { color: var(--bad); font-weight: 600; }
+    .sale-actions { margin-top: 20px; display: flex; gap: 12px; flex-wrap: wrap; }
+
+    .receipt-title { font-weight: 600; margin-bottom: 12px; color: var(--brand); }
+    .receipt-box {
+      border: 1px dashed var(--stroke); border-radius: 12px; padding: 16px; background: var(--soft);
+      font-family: 'Courier New', ui-monospace, monospace; color: var(--ink);
+      transition: background 0.3s, border-color 0.3s, color 0.3s;
+    }
+    .receipt-header { text-align: center; margin-bottom: 12px; }
+    .receipt-brand { font-size: 18px; font-weight: 700; }
+    .receipt-sub, .receipt-meta-line { font-size: 12px; color: var(--muted); }
+    .receipt-section { margin: 10px 0; }
+    .receipt-row { display: flex; justify-content: space-between; font-size: 12px; padding: 2px 0; }
+    .receipt-row.total { font-weight: 700; border-top: 1px dashed var(--stroke); padding-top: 6px; }
+    .receipt-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 8px; }
+    .receipt-table th, .receipt-table td { padding: 4px 2px; text-align: left; }
+    .receipt-table thead th { border-bottom: 1px dashed var(--stroke); }
+    .receipt-policy { margin-top: 10px; font-size: 11px; border: 1px dashed var(--stroke); padding: 8px; }
+
+    #print-area { display: none; padding: 12px; background: #ffffff; }
+    #print-area .receipt-box { border: none; padding: 0; }
+
+    @media (max-width: 1100px) {
+      .bill-grid { grid-template-columns: 1fr; }
+    }
+
+    /* Search */
+    .search-box {
+      padding: 8px 14px; border: 1px solid var(--stroke); border-radius: 8px;
+      font-size: 14px; width: 240px; background: var(--soft); color: var(--ink);
+      transition: background 0.3s, border-color 0.3s, color 0.3s;
+    }
+    .search-box:focus { outline: none; border-color: var(--brand); }
+
+    /* Alert */
+    .alert {
+      padding: 12px 18px; border-radius: 8px; margin-bottom: 16px;
+      font-size: 14px; display: none;
+    }
+    .alert.show { display: block; }
+    .alert-success { background: #e6f4ea; color: #2d7a3a; border: 1px solid #b2dfdb; }
+    .alert-error { background: #fdecea; color: #c62828; border: 1px solid #f5c6cb; }
+
+    @media print {
+      @page { margin: 8mm; }
+      body { background: #ffffff; margin: 0; }
+      #login-screen, #app-screen { display: none !important; }
+      #print-area { display: block; }
+      #print-area .receipt-box { width: 100%; max-width: 100%; box-shadow: none; }
+    }
+
+    @media (max-width: 768px) {
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .sidebar { width: 60px; }
+      .menu-item span:not(.icon) { display: none; }
+      .sidebar-logo, .sidebar-footer .user-info { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ─── LOGIN ─── -->
+<div id="login-screen">
+  <div class="login-box">
+    <h1>🛍 SD Fashion</h1>
+    <p>Billing Management System</p>
+    <div class="form-group">
+      <label>Username</label>
+      <input type="text" id="login-user" placeholder="Enter username" />
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="login-pass" placeholder="Enter password" onkeydown="if(event.key==='Enter') doLogin()" />
+    </div>
+    <button class="btn-primary" onclick="doLogin()">Login</button>
+    <div class="error-msg" id="login-error"></div>
+  </div>
+</div>
+
+<!-- ─── APP ─── -->
+<div id="app-screen">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-badge">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20.38 3.46 16 2a4 4 0 0 0-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z"></path>
+        </svg>
+      </div>
+      <span>SD Fashion</span>
+    </div>
+    <div class="sidebar-menu">
+      <div class="menu-item active" onclick="showPage('dashboard')">
+        <span class="icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+        </span>
+        <span>Dashboard</span>
+      </div>
+      <div class="menu-item" onclick="showPage('sales')">
+        <span class="icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+        </span>
+        <span>New Sale</span>
+      </div>
+      <div class="menu-item" onclick="showPage('history')">
+        <span class="icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M1 4v6h6"></path><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path><path d="M12 8v4l2 2"></path></svg>
+        </span>
+        <span>Sales History</span>
+      </div>
+    </div>
+    <div class="sidebar-footer">
+      <div class="menu-item" onclick="toggleTheme()" id="theme-toggle-side">
+        <span id="theme-label">Light Mode</span>
+      </div>
+      <div class="user-info" id="sidebar-user">
+        <div class="user-avatar">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        </div>
+        <span id="user-name-label">admin</span>
+      </div>
+      <button class="btn-logout" onclick="doLogout()">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+        <span>Logout</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Main -->
+  <div class="main-content">
+    <div class="topbar">
+      <h2 id="page-title">Dashboard</h2>
+      <div id="topbar-date" style="color:var(--muted);font-size:13px;"></div>
+    </div>
+    <div class="content-area">
+
+      <!-- DASHBOARD -->
+      <div class="page active" id="page-dashboard">
+        <div class="stats-grid" style="grid-template-columns: repeat(2, 1fr);">
+          <div class="stat-card">
+            <div class="stat-head">
+              <div class="stat-icon">✓</div>
+              <div>
+                <div class="label">Today Sales</div>
+                <div class="value" id="dash-today-sales">BDT 0.00</div>
+              </div>
+            </div>
+            <div class="sub" id="dash-today-count">0 sales</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-head">
+              <div class="stat-icon" style="background:#e7f5ff;color:#0ea5e9;">↑</div>
+              <div>
+                <div class="label">This Month Sales</div>
+                <div class="value" id="dash-month-sales">BDT 0.00</div>
+              </div>
+            </div>
+            <div class="sub" id="dash-month-count">0 sales</div>
+          </div>
+        </div>
+        <div class="table-card">
+          <div class="table-header">
+            <h3>Monthly Sales Report</h3>
+            <input class="search-box" type="month" id="report-month" onchange="loadMonthlyReport()" />
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px;">
+            <div class="stat-card" style="box-shadow:none;border:1px solid var(--stroke);">
+              <div class="label">Report Total</div>
+              <div class="value" id="report-total">BDT 0.00</div>
+              <div class="sub" id="report-count">0 sales</div>
+            </div>
+            <div class="stat-card" style="box-shadow:none;border:1px solid var(--stroke);">
+              <div class="label">Report Month</div>
+              <div class="value" id="report-month-label">-</div>
+              <div class="sub">Selected month</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- NEW SALE -->
+      <div class="page" id="page-sales">
+        <div class="bill-grid">
+          <div class="bill-card">
+            <div class="bill-header">
+              <div>
+                <div class="brand-title">SD Fashion</div>
+                <div class="brand-sub"></div>
+                <div class="brand-meta">Address: Bonmala Road, Tongi College Gate, Gazipur, Dhaka</div>
+                <div class="brand-meta">Phone: 01933-479506</div>
+              </div>
+              <div class="bill-meta">
+                <div class="meta-row">
+                  <label>Bill No</label>
+                  <input type="text" id="bill-no" readonly />
+                </div>
+                <div class="meta-row">
+                  <label>Date</label>
+                  <input type="date" id="bill-date" oninput="syncPreview()" />
+                </div>
+              </div>
+            </div>
+
+            <div class="alert" id="sale-alert"></div>
+
+            <div class="bill-customer">
+              <div class="form-group">
+                <label>Customer Name</label>
+                <input type="text" id="bill-customer-name" placeholder="Customer name" oninput="syncPreview()" />
+              </div>
+              <div class="form-group">
+                <label>Customer Phone (optional)</label>
+                <input type="text" id="bill-customer-phone" placeholder="Phone number" oninput="syncPreview()" />
+              </div>
+              <div class="form-group">
+                <label>Note</label>
+                <input type="text" id="sale-note" placeholder="Optional note" oninput="syncPreview()" />
+              </div>
+            </div>
+
+            <div class="sale-items-head">
+              <span>Item</span>
+              <span>Size</span>
+              <span>Qty</span>
+              <span>Rate</span>
+              <span>Amount</span>
+              <span></span>
+            </div>
+            <div id="sale-items-container"></div>
+
+            <button class="btn btn-info" onclick="addSaleRow()" style="margin:12px 0 16px">+ Add Item</button>
+
+            <div class="sale-summary">
+              <div class="summary-row total"><span>Total</span><span id="sum-total">BDT 0.00</span></div>
+            </div>
+
+            <div class="sale-actions">
+              <button class="btn btn-success" onclick="submitSale()" style="padding:12px 28px;font-size:15px">Complete Sale</button>
+              <button class="btn btn-info" onclick="printBill()" style="padding:12px 22px;font-size:15px">Print Bill</button>
+              <button class="btn" onclick="clearSale()" style="background:var(--stroke); color: var(--ink); padding:12px 20px">Clear</button>
+            </div>
+          </div>
+
+          <div class="receipt-card">
+            <div class="receipt-title">Receipt Preview</div>
+            <div class="receipt-box">
+              <div class="receipt-header">
+                <div class="receipt-brand">SD Fashion</div>
+                <div class="receipt-sub"></div>
+                <div class="receipt-meta-line">Address: Bonmala Road, Tongi College Gate, Gazipur, Dhaka</div>
+                <div class="receipt-meta-line">Phone: 01933-479506</div>
+              </div>
+              <div class="receipt-section">
+                <div class="receipt-row"><span>Customer</span><span id="pv-customer-name">Walk-in</span></div>
+                <div class="receipt-row"><span>Phone</span><span id="pv-customer-phone">-</span></div>
+                <div class="receipt-row"><span>Bill No</span><span id="pv-bill-no">-</span></div>
+                <div class="receipt-row"><span>Date</span><span id="pv-bill-date">-</span></div>
+              </div>
+              <table class="receipt-table">
+                <thead><tr><th>Item</th><th>Size</th><th>Qty</th><th>Rate</th><th>Amount</th></tr></thead>
+                <tbody id="pv-items"></tbody>
+              </table>
+              <div class="receipt-section">
+                <div class="receipt-row total"><span>Total</span><span id="pv-total">BDT 0.00</span></div>
+              </div>
+              <div class="receipt-policy">Return Policy: Products purchased from SD Fashion can be returned or exchanged within 7 days with this billing receipt. The product must be unused and in original condition.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SALE HISTORY -->
+      <div class="page" id="page-history">
+        <div class="table-card">
+          <div class="table-header">
+            <h3>Sales History</h3>
+            <input class="search-box" type="text" placeholder="Search..." oninput="filterHistory(this.value)" />
+          </div>
+          <table>
+            <thead><tr><th>#</th><th>Customer</th><th>Total</th><th>Paid</th><th>Due</th><th>Date</th><th></th></tr></thead>
+            <tbody id="history-table"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- PRODUCTS -->
+      
+
+      <!-- CUSTOMERS -->
+      
+
+    </div><!-- content-area -->
+  </div><!-- main-content -->
+  </div><!-- app-screen -->
+
+  <!-- PRINT AREA -->
+  <div id="print-area">
+    <div class="receipt-box print">
+      <div class="receipt-header">
+        <div class="receipt-brand">SD Fashion</div>
+        <div class="receipt-sub"></div>
+        <div class="receipt-meta-line">Address: Bonmala Road, Tongi College Gate, Gazipur, Dhaka</div>
+        <div class="receipt-meta-line">Phone: 01933-479506</div>
+      </div>
+      <div class="receipt-section">
+        <div class="receipt-row"><span>Customer</span><span id="pr-customer-name">Walk-in</span></div>
+        <div class="receipt-row"><span>Phone</span><span id="pr-customer-phone">-</span></div>
+        <div class="receipt-row"><span>Bill No</span><span id="pr-bill-no">-</span></div>
+        <div class="receipt-row"><span>Date</span><span id="pr-bill-date">-</span></div>
+      </div>
+      <table class="receipt-table">
+        <thead><tr><th>Item</th><th>Size</th><th>Qty</th><th>Rate</th><th>Amount</th></tr></thead>
+        <tbody id="pr-items"></tbody>
+      </table>
+      <div class="receipt-section">
+        <div class="receipt-row total"><span>Total</span><span id="pr-total">BDT 0.00</span></div>
+      </div>
+      <div class="receipt-policy">Return Policy: Products purchased from SD Fashion can be returned or exchanged within 7 days with this billing receipt. The product must be unused and in original condition.</div>
+    </div>
+  </div>
+
+
+
+<script>
+// If running inside electron packaged app (file://), connect to localhost:3000
+const API = window.location.protocol === 'file:' 
+  ? 'http://localhost:3000/api' 
+  : `${window.location.origin}/api`;
+let token = localStorage.getItem('token');
+let currentUser = localStorage.getItem('user') || '';
+let allSales = [];
+let currentBillNo = '';
+
+// ─── THEME ───
+function initTheme() {
+  const savedTheme = localStorage.getItem('theme') || 'dark'; // Default to dark
+  document.body.dataset.theme = savedTheme;
+  updateThemeButton(savedTheme);
+}
+function toggleTheme() {
+  const currentTheme = document.body.dataset.theme || 'dark';
+  const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+  document.body.dataset.theme = newTheme;
+  localStorage.setItem('theme', newTheme);
+  updateThemeButton(newTheme);
+}
+function updateThemeButton(theme) {
+  const themeLabel = document.getElementById('theme-label');
+  if (themeLabel) {
+    themeLabel.textContent = theme === 'dark' ? 'Light Mode' : 'Dark Mode';
+  }
+}
+initTheme();
+
+// ─── DATE ───
+function updateDate() {
+  const el = document.getElementById('topbar-date');
+  if (el) el.textContent = new Date().toLocaleDateString('en-GB', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+}
+setInterval(updateDate, 60000);
+updateDate();
+
+// ─── AUTH ───
+async function doLogin() {
+  const username = document.getElementById('login-user').value.trim();
+  const password = document.getElementById('login-pass').value;
+  document.getElementById('login-error').textContent = '';
+
+  if (!username || !password) {
+    document.getElementById('login-error').textContent = 'Enter username and password';
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API}/login`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(res.status === 401 ? 'Invalid username or password' : 'Login failed');
+
+    token = data.token;
+    currentUser = data.username;
+    localStorage.setItem('token', token);
+    localStorage.setItem('user', currentUser);
+    showApp();
+  } catch (e) {
+    document.getElementById('login-error').textContent = e.message;
+  }
+}
+
+function doLogout() {
+  token = null;
+  localStorage.removeItem('token');
+  localStorage.removeItem('user');
+  document.getElementById('app-screen').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+}
+
+function showApp() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app-screen').style.display = 'flex';
+  document.getElementById('user-name-label').textContent = currentUser || 'admin';
+  showPage('dashboard');
+}
+
+// Auto-login if token exists
+if (token) showApp();
+
+// ─── NAVIGATION ───
+function showPage(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  event?.currentTarget?.classList.add('active');
+
+  const titles = { dashboard:'Dashboard', sales:'New Sale', history:'Sales History' };
+  document.getElementById('page-title').textContent = titles[page] || page;
+
+  if (page === 'dashboard') loadDashboard();
+  if (page === 'sales') loadSalesPage();
+  if (page === 'history') loadHistory();
+}
+
+function apiFetch(url, opts = {}) {
+  return fetch(API + url, {
+    ...opts,
+    headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json', ...opts.headers }
+  });
+}
+
+function formatMoney(value) {
+  const num = Number(value || 0);
+  return 'BDT ' + num.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function formatShortDate(d) {
+  return new Date(d).toISOString().slice(0, 10);
+}
+
+function generateBillNo() {
+  const now = new Date();
+  const stamp = now.toISOString().slice(2, 10).replace(/-/g, '');
+  const rand = String(Math.floor(Math.random() * 900) + 100);
+  return `SD-${stamp}${rand}`;
+}
+
+// ─── DASHBOARD ───
+async function loadDashboard() {
+  try {
+    const res = await apiFetch('/dashboard');
+    if (res.status === 401) return doLogout();
+    const d = await res.json();
+    document.getElementById('dash-today-sales').textContent = formatMoney(d.today?.total || 0);
+    document.getElementById('dash-today-count').textContent = (d.today?.count || 0) + ' sales';
+    await loadMonthlyReport(true);
+  } catch (e) { console.error(e); }
+}
+
+async function loadMonthlyReport(setDefault = false) {
+  const monthInput = document.getElementById('report-month');
+  if (setDefault || !monthInput.value) {
+    const now = new Date();
+    monthInput.value = now.toISOString().slice(0, 7);
+  }
+  const month = monthInput.value;
+  const date = new Date(month + '-02'); // Use 2nd day to avoid timezone issues
+  const monthLabel = date.toLocaleString('default', { month: 'long', year: 'numeric' });
+  document.getElementById('report-month-label').textContent = monthLabel || '-';
+
+  const res = await apiFetch('/report?month=' + month);
+  const data = await res.json();
+  document.getElementById('dash-month-sales').textContent = formatMoney(data.total || 0);
+  document.getElementById('dash-month-count').textContent = (data.count || 0) + ' sales';
+  document.getElementById('report-total').textContent = formatMoney(data.total || 0);
+  document.getElementById('report-count').textContent = (data.count || 0) + ' sales';
+}
+
+// ─── SALES ───
+async function loadSalesPage() {
+  clearSale();
+  syncPreview();
+}
+
+function addSaleRow() {
+  const container = document.getElementById('sale-items-container');
+  const row = document.createElement('div');
+  row.className = 'sale-item-row';
+  row.innerHTML = `
+    <input type="text" placeholder="Item name" oninput="syncPreview()" />
+    <select oninput="syncPreview()">
+      <option value="">Size</option>
+      <option value="XS">XS</option>
+      <option value="S">S</option>
+      <option value="M">M</option>
+      <option value="L">L</option>
+      <option value="XL">XL</option>
+      <option value="XXL">XXL</option>
+      <option value="3XL">3XL</option>
+    </select>
+    <input type="number" value="1" min="1" placeholder="Qty" oninput="calcSummary()" />
+    <input type="number" placeholder="Rate" min="0" oninput="calcSummary()" />
+    <div class="line-total">BDT 0.00</div>
+    <button class="btn btn-danger btn-sm" onclick="this.parentElement.remove();calcSummary()">✕</button>
+  `;
+  container.appendChild(row);
+}
+
+function calcSummary() {
+  let total = 0;
+  document.querySelectorAll('.sale-item-row').forEach(row => {
+    const inputs = row.querySelectorAll('input[type="number"]');
+    const qty = parseFloat(inputs[0]?.value) || 0;
+    const price = parseFloat(inputs[1]?.value) || 0;
+    const lineTotal = qty * price;
+    const lineEl = row.querySelector('.line-total');
+    if (lineEl) lineEl.textContent = formatMoney(lineTotal);
+    total += lineTotal;
+  });
+
+  document.getElementById('sum-total').textContent = formatMoney(total);
+  syncPreview();
+}
+
+function setBillMeta() {
+  currentBillNo = generateBillNo();
+  const today = formatShortDate(new Date());
+  document.getElementById('bill-no').value = currentBillNo;
+  document.getElementById('bill-date').value = today;
+}
+
+
+function getSaleItems() {
+  const items = [];
+  document.querySelectorAll('.sale-item-row').forEach(row => {
+    const sizeSelect = row.querySelector('select');
+    const textInput = row.querySelector('input[type="text"]');
+    const numInputs = row.querySelectorAll('input[type="number"]');
+    if (textInput?.value?.trim()) {
+      items.push({
+        product_id: null,
+        product_name: textInput.value.trim(),
+        size: sizeSelect?.value || '',
+        quantity: parseInt(numInputs[0]?.value) || 1,
+        price: parseFloat(numInputs[1]?.value) || 0
+      });
+    }
+  });
+  return items;
+}
+
+function syncPreview() {
+  const customerName = document.getElementById('bill-customer-name').value.trim() || 'Walk-in';
+  const customerPhone = document.getElementById('bill-customer-phone').value.trim() || '-';
+  const billNo = document.getElementById('bill-no').value || '-';
+  const billDate = document.getElementById('bill-date').value || '-';
+  const items = getSaleItems();
+  const total = items.reduce((s, i) => s + i.quantity * i.price, 0);
+
+  const pvItems = document.getElementById('pv-items');
+  const prItems = document.getElementById('pr-items');
+  const rows = items.length
+    ? items.map(i => `<tr><td>${i.product_name}</td><td>${i.size || '-'}</td><td>${i.quantity}</td><td>${formatMoney(i.price)}</td><td>${formatMoney(i.quantity * i.price)}</td></tr>`).join('')
+    : '<tr><td colspan="5" style="text-align:center;color:#6b7280;padding:10px">No items</td></tr>';
+
+  pvItems.innerHTML = rows;
+  prItems.innerHTML = rows;
+
+  document.getElementById('pv-customer-name').textContent = customerName;
+  document.getElementById('pv-customer-phone').textContent = customerPhone;
+  document.getElementById('pv-bill-no').textContent = billNo;
+  document.getElementById('pv-bill-date').textContent = billDate;
+  document.getElementById('pv-total').textContent = formatMoney(total);
+
+  document.getElementById('pr-customer-name').textContent = customerName;
+  document.getElementById('pr-customer-phone').textContent = customerPhone;
+  document.getElementById('pr-bill-no').textContent = billNo;
+  document.getElementById('pr-bill-date').textContent = billDate;
+  document.getElementById('pr-total').textContent = formatMoney(total);
+}
+
+function buildPrintHtml() {
+  const receipt = document.getElementById('print-area').innerHTML;
+  return `<!doctype html>
+  <html>
+    <head>
+      <meta charset="utf-8" />
+      <title>SD Fashion Bill</title>
+      <style>
+        @page { size: A4; margin: 10mm; }
+        html, body {
+          margin: 0; padding: 0; width: 100%; background: #ffffff;
+        }
+        body {
+          font-family: 'Courier New', ui-monospace, monospace;
+          display: flex; justify-content: flex-start;
+        }
+        .receipt-box {
+          border: none; padding: 6mm 5mm; color: #111827;
+          width: 105mm; box-sizing: border-box;
+        }
+        .receipt-header { text-align: center; margin-bottom: 12px; }
+        .receipt-brand { font-size: 18px; font-weight: 700; }
+        .receipt-sub, .receipt-meta-line { font-size: 12px; color: #374151; }
+        .receipt-section { margin: 10px 0; }
+        .receipt-row { display: flex; justify-content: space-between; font-size: 12px; padding: 2px 0; }
+        .receipt-row.total { font-weight: 700; border-top: 1px dashed #cbd5f5; padding-top: 6px; }
+        .receipt-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 8px; }
+        .receipt-table th, .receipt-table td { padding: 4px 2px; text-align: left; }
+        .receipt-table thead th { border-bottom: 1px dashed #cbd5f5; }
+        .receipt-policy { margin-top: 10px; font-size: 11px; border: 1px dashed #cbd5f5; padding: 8px; }
+      </style>
+    </head>
+    <body>${receipt}</body>
+  </html>`;
+}
+
+function toggleTheme() {
+  const currentTheme = document.body.dataset.theme || 'light';
+  const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+  document.body.dataset.theme = newTheme;
+  localStorage.setItem('theme', newTheme);
+  document.getElementById('theme-toggle-side').textContent = newTheme === 'dark' ? 'Light Mode' : 'Dark Mode';
+}
+
+function initTheme() {
+  const savedTheme = localStorage.getItem('theme') || 'dark';
+  document.body.dataset.theme = savedTheme;
+  document.getElementById('theme-toggle-side').textContent = savedTheme === 'dark' ? 'Light Mode' : 'Dark Mode';
+}
+
+async function printBill() {
+  syncPreview();
+  const html = buildPrintHtml();
+  if (window.electronAPI && typeof window.electronAPI.printReceipt === 'function') {
+    try {
+      const result = await window.electronAPI.savePdf(html);
+      if (!result?.canceled) {
+        await window.electronAPI.printReceipt(html);
+      }
+    } catch (err) {
+      window.print();
+    }
+    return;
+  }
+  window.print();
+}
+
+function clearSale() {
+  const container = document.getElementById('sale-items-container');
+  // Remove all rows except header
+  container.querySelectorAll('.sale-item-row').forEach(r => r.remove());
+  document.getElementById('sale-note').value = '';
+  document.getElementById('bill-customer-name').value = '';
+  document.getElementById('bill-customer-phone').value = '';
+  setBillMeta();
+  calcSummary();
+  addSaleRow();
+}
+
+async function submitSale() {
+  const items = getSaleItems();
+
+  if (!items.length) { showAlert('sale-alert', 'Add at least one item', 'error'); return; }
+
+  const total = items.reduce((s, i) => s + i.quantity * i.price, 0);
+  const discount = 0;
+  const paid = total;
+
+  try {
+    const res = await apiFetch('/sales', {
+      method: 'POST',
+      body: JSON.stringify({
+        customer_id: null,
+        items, total, discount, paid,
+        note: document.getElementById('sale-note').value
+      })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error);
+    showAlert('sale-alert', 'Sale completed (ID: ' + data.id + ')', 'success');
+    clearSale();
+    loadDashboard();
+  } catch (e) {
+    showAlert('sale-alert', e.message, 'error');
+  }
+}
+
+// ─── HISTORY ───
+async function loadHistory() {
+  const res = await apiFetch('/sales');
+  allSales = await res.json();
+  renderHistory(allSales);
+}
+
+function renderHistory(sales) {
+  const tb = document.getElementById('history-table');
+  tb.innerHTML = sales.map(s => `<tr>
+    <td>#${s.id}</td>
+    <td>${s.customer_name || 'Walk-in'}</td>
+    <td>${formatMoney(s.total)}</td>
+    <td>${new Date(s.created_at).toLocaleDateString('en-GB')}</td>
+    <td><button class="btn btn-info btn-sm" onclick="viewSale(${s.id})">View</button></td>
+  </tr>`).join('') || '<tr><td colspan="5" style="text-align:center;color:#aaa;padding:20px">No sales yet</td></tr>';
+}
+
+function filterHistory(q) {
+  const f = allSales.filter(s =>
+    (s.customer_name || '').toLowerCase().includes(q.toLowerCase()) ||
+    String(s.id).includes(q)
+  );
+  renderHistory(f);
+}
+
+async function viewSale(id) {
+  const res = await apiFetch('/sales/' + id);
+  const s = await res.json();
+  const items = s.items.map(i => `${i.product_name} x ${i.quantity} @ ${formatMoney(i.price)}`).join('\n');
+  alert(`Sale #${s.id}\nCustomer: ${s.customer_name || 'Walk-in'}\nItems:\n${items}\n\nTotal: ${formatMoney(s.total)}\nNote: ${s.note || '-'}`);
+}
+
+// ─── HELPERS ───
+function showAlert(id, msg, type) {
+  const el = document.getElementById(id);
+  el.textContent = msg;
+  el.className = `alert alert-${type} show`;
+  setTimeout(() => el.classList.remove('show'), 4000);
+}
+</script>
+</body>
+</html>

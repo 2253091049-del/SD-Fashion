@@ -1,0 +1,53 @@
+{
+  "name": "sd-fashion",
+  "version": "1.0.0",
+  "description": "Billing system for SD Fashion",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "set PORT=9093 && node server/server.js",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder",
+    "postinstall": "electron-builder install-app-deps"
+  },
+  "keywords": ["billing", "fashion", "sd-fashion"],
+  "author": "SD Fashion",
+  "license": "ISC",
+  "dependencies": {
+    "better-sqlite3": "^11.0.0",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.2"
+  },
+  "devDependencies": {
+    "electron": "^28.3.3",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.sdfashion.billing",
+    "productName": "SD Fashion Billing",
+    "directories": {
+      "output": "dist"
+    },
+    "asar": true,
+    "asarUnpack": [
+      "node_modules/better-sqlite3/**"
+    ],
+    "files": [
+      "main.js",
+      "server/**",
+      "public/**",
+      "node_modules/**"
+    ],
+    "win": {
+      "target": "nsis"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    }
+  }
+}
